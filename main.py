@@ -24,9 +24,7 @@ def validar_y_parsear_numero(texto, tipo=int):
 		return False
 	
 	try:
-		# Primero intentamos convertir a float (acepta enteros y decimales)
-		numero = float(texto)
-		# Si el tipo solicitado es int, convertimos
+		numero = float(texto.strip())
 		if tipo == int:
 			return int(numero)
 		return numero
@@ -51,7 +49,22 @@ def validar_y_parsear_registro(registro):
 	if not es_valido:
 		return None
 
-	return registro
+	return {
+		'nombre': nombre,
+		'continente': continente,
+		'poblacion': int(poblacion),
+		'area': float(area)
+	}
+
+
+def parsear_nombre(nombre):
+	"""
+	Reemplaza acentos por sus equivalentes sin acentos.\n
+	Retorna:
+		- str: el nombre sin acentos en minúsculas
+	"""
+	nombre = nombre.lower().replace('á', 'a').replace('é', 'e').replace('í', 'i').replace('ó', 'o').replace('ú', 'u')
+	return nombre
 
 
 def cargar_paises(dataset):
@@ -79,7 +92,22 @@ def cargar_paises(dataset):
 
 
 def mostrar_pais(pais):
-	print(f"{pais['nombre']} - {pais['continente']}\n{pais['poblacion']} hab. - {pais['area']} km^2")
+	print(f"➡️  {pais['nombre']} - {pais['continente']} - {pais['poblacion']} hab. - {pais['area']} km^2")
+
+
+def mostrar_paises(paises):
+	"""
+	Lista los paises.
+	"""
+	if not paises:
+		print("🚨 No hay paises para listar")
+		return
+
+	print(f"🌎 Lista de {len(paises)} paises:")
+	print("-" * 60)
+	for pais in paises:
+		mostrar_pais(pais)
+	print("-" * 60)
 
 
 def agregar_pais(paises, dataset):
@@ -166,35 +194,143 @@ def actualizar_pais(paises, dataset):
 
 
 def buscar_pais(paises):
+	"""
+	Busca un pais en el dataset.
+	Retorna:
+		- (pais, indice): si el pais es encontrado
+		- None: si el pais no es encontrado
+	"""
 	# TODO: Debe devolver pais e indice! Usar enumerate
-	nombre = input("Ingrese el nombre del pais: ")
-	encontrado = False
+	# El pais buscado debe ser igual o parcialmente igual al nombre ingresado por el usuario.
+	pass
+
+
+def filtrar_por_continente(paises):
+	"""
+	Filtra los paises por continente.
+	Retorna:
+		- Lista de paises
+	"""
+	continente = input("Ingrese el continente: ")
+	es_continente_valido = validar_texto(continente)
+	if not es_continente_valido:
+		print("🚨 Continente inválido")
+		return
+	
+	continente = parsear_nombre(continente)
+
+	paises_filtrados = []
 	for pais in paises:
-		if pais['nombre'].lower() == nombre.lower():
-			mostrar_pais(pais)
-			encontrado = True
-			break
-	if not encontrado:
-		print("Pais no encontrado")
+		if parsear_nombre(pais['continente']) == continente:
+			paises_filtrados.append(pais)
+	return paises_filtrados
 
 
-def filtrar_continente(paises, continente):
-	pass
+def filtrar_por_rango_poblacion(paises):
+	"""
+	Filtra los paises por rango de población.
+	Retorna:
+		- Lista de paises
+	"""
+	poblacion_minima = input("Ingrese la población mínima: ")
+	poblacion_maxima = input("Ingrese la población máxima: ")
+
+	poblacion_minima_parseada = validar_y_parsear_numero(poblacion_minima, int)
+	if not poblacion_minima_parseada:
+		print("🚨 Población mínima inválida")
+		return
+
+	poblacion_maxima_parseada = validar_y_parsear_numero(poblacion_maxima, int)
+	if not poblacion_maxima_parseada:
+		print("🚨 Población máxima inválida")
+		return
+
+	if poblacion_minima_parseada > poblacion_maxima_parseada:
+		print("🚨 Población mínima debe ser menor a la población máxima")
+		return
+
+	paises_filtrados = []
+	for pais in paises:
+		if pais['poblacion'] >= poblacion_minima_parseada and pais['poblacion'] <= poblacion_maxima_parseada:
+			paises_filtrados.append(pais)
+
+	return paises_filtrados
 
 
-def filtrar_poblacion(paises, rango):
-	pass
+def filtrar_por_rango_superficie(paises):
+	"""
+	Filtra los paises por rango de superficie.
+	Retorna:
+		- Lista de paises
+	"""
+	area_minima = input("Ingrese la superficie mínima: ")
+	area_maxima = input("Ingrese la superficie máxima: ")
+	
+	area_minima_parseada = validar_y_parsear_numero(area_minima, float)
+	if not area_minima_parseada:
+		print("🚨 Superficie mínima inválida")
+		return
 
-def filtrar_superficie(paises, rango):
-	pass
+	area_maxima_parseada = validar_y_parsear_numero(area_maxima, float)
+	if not area_maxima_parseada:
+		print("🚨 Superficie máxima inválida")
+		return
+
+	if area_minima_parseada > area_maxima_parseada:
+		print("🚨 Superficie mínima debe ser menor a la superficie máxima")
+		return
+
+	paises_filtrados = []
+	for pais in paises:
+		if pais['area'] >= area_minima_parseada and pais['area'] <= area_maxima_parseada:
+			paises_filtrados.append(pais)
+
+	return paises_filtrados
 
 
 def filtrar_paises(paises):
-	pass
+	"""
+	Filtrar paises por continente, rango de población o rango de superficie.
+	"""
+	opcion = None
+
+	print("""
+🔍 Filtrar paises por:
+	1) Continente
+	2) Rango de población
+	3) Rango de superficie
+	4) Volver al menu principal
+""")
+	
+	while True:
+		try:
+			opcion = int(input("Ingrese la opción de filtrado: "))
+		except ValueError:
+			print("🚨 Opción inválida")
+			continue
+		
+		match opcion:
+			case 1:
+				paises_filtrados = filtrar_por_continente(paises)
+				mostrar_paises(paises_filtrados)
+				break
+			case 2:
+				paises_filtrados = filtrar_por_rango_poblacion(paises)
+				mostrar_paises(paises_filtrados)
+				break
+			case 3:
+				paises_filtrados = filtrar_por_rango_superficie(paises)
+				mostrar_paises(paises_filtrados)
+				break
+			case 4:
+				break
+			case _:
+				print("🚨 Opción inválida")
 
 
 def ordenar_por_nombre(paises):
 	pass
+
 
 def ordenar_por_poblacion(paises):
 	pass
@@ -214,13 +350,15 @@ def mostrar_estadisticas(paises):
 
 def menu():
 	print("""
-1) Agregar un pais
-2) Actualizar un pais
-3) Buscar un pais
-4) Filtrar paises
-5) Ordenar paises
-6) Mostrar estadísticas
-7) Salir
+🔍 Menu principal:
+---------------------------
+1) 🆕 Agregar un pais
+2) 🔄 Actualizar un pais
+3) 🔍 Buscar un pais
+4) 🪝 Filtrar paises
+5) 📚 Ordenar paises
+6) 📊 Mostrar estadísticas
+7) 👋 Salir
 	""")
 	opcion = int(input("Ingrese una opcion: "))
 	return opcion
