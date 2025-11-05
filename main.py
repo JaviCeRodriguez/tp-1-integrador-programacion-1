@@ -13,14 +13,25 @@ def validar_texto(texto):
 	return True
 
 
-def validar_numero(numero):
+def validar_y_parsear_numero(texto, tipo=int):
 	"""
-	Valida que el número no sea vacío o contenga solo espacios en blanco, y que sea un número.
+	Valida que el número no sea vacío o contenga solo espacios en blanco, y que sea un número válido.
 	Retorna:
-		- True: si el número es válido
+		- int o float: si el número es válido
 		- False: si el número es inválido
 	"""
-	return validar_texto(numero) and numero.isdigit()
+	if not validar_texto(texto):
+		return False
+	
+	try:
+		# Primero intentamos convertir a float (acepta enteros y decimales)
+		numero = float(texto)
+		# Si el tipo solicitado es int, convertimos
+		if tipo == int:
+			return int(numero)
+		return numero
+	except ValueError:
+		return False
 
 
 def validar_y_parsear_registro(registro):
@@ -30,22 +41,17 @@ def validar_y_parsear_registro(registro):
 		- dict: si el registro es válido
 		- None: si el registro es inválido
 	"""
-	nombre = registro.get('Country/Territory')
-	continente = registro.get('Continent')
-	poblacion = registro.get('2022 Population')
-	area = registro.get('Area (km²)')
+	nombre = registro.get('nombre')
+	continente = registro.get('continente')
+	poblacion = registro.get('poblacion')
+	area = registro.get('area')
 
-	es_valido = validar_texto(nombre) and validar_texto(continente) and validar_numero(poblacion) and validar_numero(area)
+	es_valido = validar_texto(nombre) and validar_texto(continente) and validar_y_parsear_numero(poblacion, int) and validar_y_parsear_numero(area, float)
 
 	if not es_valido:
 		return None
 
-	return {
-		'nombre': nombre,
-		'continente': continente,
-		'poblacion': poblacion,
-		'area': area
-	}
+	return registro
 
 
 def cargar_paises(dataset):
@@ -76,8 +82,48 @@ def mostrar_pais(pais):
 	print(f"{pais['nombre']} - {pais['continente']}\n{pais['poblacion']} hab. - {pais['area']} km^2")
 
 
-def agregar_pais(paises):
-	pass
+def agregar_pais(paises, dataset):
+	nombre = input("Ingrese el nombre del pais: ")
+	es_nombre_valido = validar_texto(nombre)
+	if not es_nombre_valido:
+		print("🚨 Nombre inválido")
+		return
+
+	continente = input("Ingrese el continente del pais: ")
+	es_continente_valido = validar_texto(continente)
+	if not es_continente_valido:
+		print("🚨 Continente inválido")
+		return
+
+	poblacion = input("Ingrese la población del pais: ")
+	poblacion_parseada = validar_y_parsear_numero(poblacion, int)
+	if not poblacion_parseada:
+		print("🚨 Población inválida")
+		return
+		
+	area = input("Ingrese el área del pais: ")
+	area_parseada = validar_y_parsear_numero(area, float)
+	if not area_parseada:
+		print("🚨 Área inválida")
+		return
+
+	pais = {
+		'nombre': nombre,
+		'continente': continente,
+		'poblacion': str(poblacion_parseada),
+		'area': str(area_parseada)
+	}
+
+	try:
+		paises.append(pais)
+		with open(dataset, 'a') as archivo:
+			writer = csv.DictWriter(archivo, fieldnames=pais.keys())
+			writer.writerow(pais)
+		print(f"ℹ️  Pais agregado correctamente")
+	except Exception as e:
+		print(f"🚨 Error al agregar el pais. Error: {e}")
+
+	return
 
 
 def actualizar_pais(paises):
@@ -148,14 +194,14 @@ def menu():
 
 
 def inicio():
-	UBICACION_DATA = 'data/world_population.csv'
+	UBICACION_DATA = 'data/world_population_acotado.csv'
 	paises = cargar_paises(UBICACION_DATA)
 
 	while True:
 		opc = menu()
 		match opc:
 			case 1:
-				agregar_pais(paises)
+				agregar_pais(paises=paises, dataset=UBICACION_DATA)
 			case 2:
 				actualizar_pais(paises)
 			case 3:
