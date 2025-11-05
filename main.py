@@ -1,19 +1,74 @@
 import csv
 
 
+def validar_texto(texto):
+	"""
+	Valida que el texto no sea vacío o contenga solo espacios en blanco.
+	Retorna:
+		- True: si el texto es válido
+		- False: si el texto es inválido
+	"""
+	if not texto or texto.strip() == '':
+		return False
+	return True
+
+
+def validar_numero(numero):
+	"""
+	Valida que el número no sea vacío o contenga solo espacios en blanco, y que sea un número.
+	Retorna:
+		- True: si el número es válido
+		- False: si el número es inválido
+	"""
+	return validar_texto(numero) and numero.isdigit()
+
+
+def validar_y_parsear_registro(registro):
+	"""
+	Valida y parsea un registro del dataset.
+	Retorna:
+		- dict: si el registro es válido
+		- None: si el registro es inválido
+	"""
+	nombre = registro.get('Country/Territory')
+	continente = registro.get('Continent')
+	poblacion = registro.get('2022 Population')
+	area = registro.get('Area (km²)')
+
+	es_valido = validar_texto(nombre) and validar_texto(continente) and validar_numero(poblacion) and validar_numero(area)
+
+	if not es_valido:
+		return None
+
+	return {
+		'nombre': nombre,
+		'continente': continente,
+		'poblacion': poblacion,
+		'area': area
+	}
+
+
 def cargar_paises(dataset):
+	"""
+	Carga los paises desde el dataset.
+	Retorna:
+		- Lista de paises (dict: nombre, continente, poblacion, area)
+	"""
 	paises = []
-	with open(dataset, 'r') as file:
-		reader = csv.reader(file)
-		next(reader) # Me salteo el encabezado
-		for row in reader:
-			pais = {
-				'nombre': row[2],
-				'continente': row[4],
-				'poblacion': row[5],
-				'area': row[13]
-			}
-			paises.append(pais)
+
+	try:
+		with open(dataset, 'r') as archivo:
+			reader = csv.DictReader(archivo)
+			for indice, registro in enumerate(reader):
+				pais = validar_y_parsear_registro(registro)
+				if pais:
+					paises.append(pais)
+				else:
+					print(f"⚠️  Registro inválido en la fila {indice + 2}")
+	except Exception as e:
+		print(f"🚨 Error al cargar los paises: {e}")
+	finally:
+		print(f"ℹ️  Se cargaron {len(paises)} paises")
 	return paises
 
 
@@ -21,13 +76,17 @@ def mostrar_pais(pais):
 	print(f"{pais['nombre']} - {pais['continente']}\n{pais['poblacion']} hab. - {pais['area']} km^2")
 
 
-def mostrar_paises_resumen(paises):
-	for pais in paises[:3] + paises[-3:]:
-		mostrar_pais(pais)
-	print()
+def agregar_pais(paises):
+	pass
 
 
-def buscar_pais(paises, nombre):
+def actualizar_pais(paises):
+	pass
+
+
+def buscar_pais(paises):
+	# TODO: Revisar esta función
+	nombre = input("Ingrese el nombre del pais: ")
 	encontrado = False
 	for pais in paises:
 		if pais['nombre'].lower() == nombre.lower():
@@ -49,14 +108,22 @@ def filtrar_superficie(paises, rango):
 	pass
 
 
-def ordenar_nombre(paises):
-	pass
-
-def ordenar_poblacion(paises):
+def filtrar_paises(paises):
 	pass
 
 
-def ordenar_superficie(paises):
+def ordenar_por_nombre(paises):
+	pass
+
+def ordenar_por_poblacion(paises):
+	pass
+
+
+def ordenar_por_superficie(paises):
+	pass
+
+
+def ordenar_paises(paises):
 	pass
 
 
@@ -81,35 +148,29 @@ def menu():
 
 
 def inicio():
-	opc = None
-	paises = cargar_paises('data/world_population.csv')
+	UBICACION_DATA = 'data/world_population.csv'
+	paises = cargar_paises(UBICACION_DATA)
 
-	while opc != 0:
+	while True:
 		opc = menu()
 		match opc:
 			case 1:
-				nombre = input("Ingrese el nombre del pais: ")
-				buscar_pais(paises, nombre)
+				agregar_pais(paises)
 			case 2:
-				continente = input("Ingrese el nombre del continente: ")
-				filtrar_continente(paises, continente)
+				actualizar_pais(paises)
 			case 3:
-				rango = input("Ingrese el rango de poblacion (minimo, maximo): ")
-				filtrar_poblacion(paises, rango)
+				buscar_pais(paises)
 			case 4:
-				rango = input("Ingrese el rango de superficie (minimo, maximo): ")
-				filtrar_superficie(paises, rango)
+				filtrar_paises(paises)
 			case 5:
-				ordenar_nombre(paises)
+				ordenar_paises(paises)
 			case 6:
-				ordenar_poblacion(paises)
-			case 7:
-				ordenar_superficie(paises)
-			case 8:
 				mostrar_estadisticas(paises)
-			case 0:
-				print("Saliendo...")
+			case 7:
+				print("👋 ¡Hasta luego!")
 				break
 			case _:
-				print("Opcion no valida")
+				print("🚨 Opción inválida")
+
+
 inicio()
