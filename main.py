@@ -83,6 +83,9 @@ def mostrar_pais(pais):
 
 
 def agregar_pais(paises, dataset):
+	"""
+	Agrega un pais al dataset.
+	"""
 	nombre = input("Ingrese el nombre del pais: ")
 	es_nombre_valido = validar_texto(nombre)
 	if not es_nombre_valido:
@@ -115,10 +118,10 @@ def agregar_pais(paises, dataset):
 	}
 
 	try:
-		paises.append(pais)
 		with open(dataset, 'a') as archivo:
 			writer = csv.DictWriter(archivo, fieldnames=pais.keys())
 			writer.writerow(pais)
+		paises.append(pais)
 		print(f"ℹ️  Pais agregado correctamente")
 	except Exception as e:
 		print(f"🚨 Error al agregar el pais. Error: {e}")
@@ -126,12 +129,44 @@ def agregar_pais(paises, dataset):
 	return
 
 
-def actualizar_pais(paises):
-	pass
+# Depende de buscar_pais
+def actualizar_pais(paises, dataset):
+	"""
+	Actualiza un pais en el dataset.
+	"""
+	pais, indice = buscar_pais(paises)
+	if not pais:
+		print("Pais no encontrado")
+		return
+	
+	poblacion = input("Ingrese la nueva población: ")
+	poblacion_parseada = validar_y_parsear_numero(poblacion, int)
+	if not poblacion_parseada:
+		print("🚨 Población inválida")
+		return
+	
+	area = input("Ingrese el nuevo área: ")
+	area_parseada = validar_y_parsear_numero(area, float)
+	if not area_parseada:
+		print("🚨 Área inválida")
+		return
+
+	pais.update({'poblacion': str(poblacion_parseada), 'area': str(area_parseada)})
+	
+	try:
+		paises[indice] = pais
+		with open(dataset, 'w', newline='') as archivo:
+			writer = csv.DictWriter(archivo, fieldnames=pais.keys())
+			writer.writeheader()
+			writer.writerows(paises)
+		print(f"ℹ️  Pais actualizado correctamente")
+	except Exception as e:
+		print(f"🚨 Error al actualizar el pais. Error: {e}")
+	return
 
 
 def buscar_pais(paises):
-	# TODO: Revisar esta función
+	# TODO: Debe devolver pais e indice! Usar enumerate
 	nombre = input("Ingrese el nombre del pais: ")
 	encontrado = False
 	for pais in paises:
@@ -179,15 +214,13 @@ def mostrar_estadisticas(paises):
 
 def menu():
 	print("""
-1) Buscar un pais
-2) Filtrar paises por continente
-3) Filtrar paises por rango de poblacion
-4) Filtrar paises por rango de superficie
-5) Ordenar paises por nombre
-6) Ordenar paises por población
-7) Ordenar paises por superficie
-8) Mostrar estadísticas
-0) Salir
+1) Agregar un pais
+2) Actualizar un pais
+3) Buscar un pais
+4) Filtrar paises
+5) Ordenar paises
+6) Mostrar estadísticas
+7) Salir
 	""")
 	opcion = int(input("Ingrese una opcion: "))
 	return opcion
@@ -203,7 +236,7 @@ def inicio():
 			case 1:
 				agregar_pais(paises=paises, dataset=UBICACION_DATA)
 			case 2:
-				actualizar_pais(paises)
+				actualizar_pais(paises=paises, dataset=UBICACION_DATA)
 			case 3:
 				buscar_pais(paises)
 			case 4:
