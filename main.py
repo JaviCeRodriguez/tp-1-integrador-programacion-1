@@ -340,12 +340,12 @@ def filtrar_paises(paises):
 	opcion = None
 
 	print("""
-🔍 Filtrar paises por:
+	🔍 Filtrar paises por:
 	1) Continente
 	2) Rango de población
 	3) Rango de superficie
 	4) Volver al menu principal
-""")
+	""")
 	
 	while True:
 		opcion = validar_y_parsear_opcion_menu(input("Ingrese la opción de filtrado: "))
@@ -487,6 +487,7 @@ def estadistica_promedio_poblacion(paises):
 	promedio_poblacion = total_poblacion / len(paises)
 	print(f"El promedio de población de los países es {promedio_poblacion:.2f} habitantes")
 
+
 def estadistica_promedio_superficie(paises):
 	"""
 	Calcula el promedio de superficie de los países.
@@ -514,13 +515,13 @@ def mostrar_estadisticas(paises):
 	opcion = None
 
 	print("""
-📊 Mostrar estadísticas:
+	📊 Mostrar estadísticas:
 	1) País con mayor y menor población
 	2) Promedio de población
 	3) Promedio de superficie
 	4) Cantidad de países por continente
 	5) Volver al menu principal
-""")
+	""")
 	
 	while True:
 		opcion = validar_y_parsear_opcion_menu(input("Ingrese la opción de estadística: "))
