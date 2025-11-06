@@ -1,3 +1,4 @@
+import os
 import csv
 
 
@@ -13,6 +14,21 @@ def validar_texto(texto):
 	return True
 
 
+def validar_y_parsear_opcion_menu(opcion):
+	"""
+	Valida que la opción no sea vacía o contenga solo espacios en blanco, y que sea un número válido.
+	Retorna:
+		- int: si la opción es válida
+		- None: si la opción es inválida
+	"""
+	opcion = opcion.strip()
+
+	if not opcion.isdigit():
+		return None
+
+	return int(opcion)
+
+
 def validar_y_parsear_numero(texto, tipo=int):
 	"""
 	Valida que el número no sea vacío o contenga solo espacios en blanco, y que sea un número válido.
@@ -23,13 +39,15 @@ def validar_y_parsear_numero(texto, tipo=int):
 	if not validar_texto(texto):
 		return False
 	
-	try:
-		numero = float(texto.strip())
-		if tipo == int:
-			return int(numero)
-		return numero
-	except ValueError:
+	texto = texto.strip()
+	
+	if not texto.replace('.', '').isdigit():
 		return False
+
+	numero = float(texto)
+	if tipo == int:
+		return int(numero)
+	return numero
 
 
 def validar_y_parsear_registro(registro):
@@ -67,6 +85,28 @@ def parsear_nombre(nombre):
 	return nombre
 
 
+def crear_archivo(dataset):
+	"""
+	Crea un archivo CSV vacío.
+	"""
+	with open(dataset, 'w') as archivo:
+		writer = csv.DictWriter(archivo, fieldnames=['nombre', 'continente', 'poblacion', 'area'])
+		writer.writeheader()
+		print(f"ℹ️  Archivo {dataset} creado correctamente.")
+	return
+
+
+def agregar_pais_en_archivo(dataset, registro):
+	"""
+	Agrega un pais al archivo CSV.
+	"""
+	with open(dataset, 'a') as archivo:
+		writer = csv.DictWriter(archivo, fieldnames=registro.keys())
+		writer.writerow(registro)
+		print(f"ℹ️  Pais agregado correctamente.")
+	return
+
+
 def cargar_paises(dataset):
 	"""
 	Carga los paises desde el dataset.
@@ -75,7 +115,7 @@ def cargar_paises(dataset):
 	"""
 	paises = []
 
-	try:
+	if os.path.exists(dataset):
 		with open(dataset, 'r') as archivo:
 			reader = csv.DictReader(archivo)
 			for indice, registro in enumerate(reader):
@@ -84,10 +124,11 @@ def cargar_paises(dataset):
 					paises.append(pais)
 				else:
 					print(f"⚠️  Registro inválido en la fila {indice + 2}")
-	except Exception as e:
-		print(f"🚨 Error al cargar los paises: {e}")
-	finally:
 		print(f"ℹ️  Se cargaron {len(paises)} paises")
+	else:
+		print(f"🚨 Error al cargar los paises: {dataset} no existe. Creando archivo...")
+		crear_archivo(dataset)
+
 	return paises
 
 
@@ -145,15 +186,14 @@ def agregar_pais(paises, dataset):
 		'area': str(area_parseada)
 	}
 
-	try:
-		with open(dataset, 'a') as archivo:
-			writer = csv.DictWriter(archivo, fieldnames=pais.keys())
-			writer.writerow(pais)
-		paises.append(pais)
-		print(f"ℹ️  Pais agregado correctamente")
-	except Exception as e:
-		print(f"🚨 Error al agregar el pais. Error: {e}")
+	if os.path.exists(dataset):
+		agregar_pais_en_archivo(dataset, pais)
+	else:
+		print(f"🚨 Error al agregar el pais. Error: {dataset} no existe. Creando archivo...")
+		crear_archivo(dataset)
+		agregar_pais_en_archivo(dataset, pais)
 
+	paises.append(pais)
 	return
 
 
@@ -180,16 +220,17 @@ def actualizar_pais(paises, dataset):
 		return
 
 	pais.update({'poblacion': str(poblacion_parseada), 'area': str(area_parseada)})
-	
-	try:
+
+	if os.path.exists(dataset):
 		paises[indice] = pais
 		with open(dataset, 'w', newline='') as archivo:
 			writer = csv.DictWriter(archivo, fieldnames=pais.keys())
 			writer.writeheader()
 			writer.writerows(paises)
 		print(f"ℹ️  Pais actualizado correctamente")
-	except Exception as e:
-		print(f"🚨 Error al actualizar el pais. Error: {e}")
+	else:
+		print(f"🚨 Error al actualizar el pais. Error: {dataset} no existe.")
+
 	return
 
 
@@ -200,7 +241,7 @@ def buscar_pais(paises):
 
     # recorrer la lista de paises:
     for i, pais in enumerate(paises):
-        if pais_buscado.lower() in pais["nombre"].lower():
+        if parsear_nombre(pais_buscado) in parsear_nombre(pais["nombre"]):
             print(f"El país buscado '{pais_buscado}' fue encontrado en el índice {i}")
             return pais, i
 
@@ -209,19 +250,6 @@ def buscar_pais(paises):
  
 	# TODO: Debe devolver pais e indice! Usar enumerate
 	# El pais buscado debe ser igual o parcialmente igual al nombre ingresado por el usuario
-	      
-		
-	
-
-		   
-		
-
-			   
-
-
-
-
-	
 
 
 def filtrar_por_continente(paises):
@@ -323,12 +351,7 @@ def filtrar_paises(paises):
 """)
 	
 	while True:
-		try:
-			opcion = int(input("Ingrese la opción de filtrado: "))
-		except ValueError:
-			print("🚨 Opción inválida")
-			continue
-		
+		opcion = validar_y_parsear_opcion_menu(input("Ingrese la opción de filtrado: "))
 		match opcion:
 			case 1:
 				paises_filtrados = filtrar_por_continente(paises)
@@ -348,9 +371,9 @@ def filtrar_paises(paises):
 				print("🚨 Opción inválida")
 
 
-
 def obtener_nombre(pais):#función auxiliar para buscar la key"nombre" en la lista de diccionarios
 	return pais["nombre"]
+
 
 def ordenar_por_nombre(paises):
 	print("---ORDENAR PAÍSES POR NOMBRE---")
@@ -358,9 +381,6 @@ def ordenar_por_nombre(paises):
 	for p in paises_ordenados:
 		print(p)
 	return paises_ordenados
-
-
-	
 
 
 def obtener_poblacion(pais):
@@ -440,8 +460,8 @@ def menu():
 6) 📊 Mostrar estadísticas
 7) 👋 Salir
 	""")
-	opcion = int(input("Ingrese una opcion: "))
-	return opcion
+	opcion = input("Ingrese una opcion: ")
+	return validar_y_parsear_opcion_menu(opcion)
 
 
 def inicio():
