@@ -114,13 +114,13 @@ def agregar_pais(paises, dataset):
 	"""
 	Agrega un pais al dataset.
 	"""
-	nombre = input("Ingrese el nombre del pais: ")
+	nombre = input("Ingrese el nombre del pais: ").strip()
 	es_nombre_valido = validar_texto(nombre)
 	if not es_nombre_valido:
 		print("🚨 Nombre inválido")
 		return
 
-	continente = input("Ingrese el continente del pais: ")
+	continente = input("Ingrese el continente del pais: ").strip()
 	es_continente_valido = validar_texto(continente)
 	if not es_continente_valido:
 		print("🚨 Continente inválido")
@@ -194,18 +194,38 @@ def actualizar_pais(paises, dataset):
 
 
 def buscar_pais(paises):
-	"""
-	Busca un pais en el dataset.
-	Retorna:
-		- (pais, indice): si el pais es encontrado
-		- None: si el pais no es encontrado
-	"""
+	
+    print("---BUSCAR PAÍS---")
+    pais_buscado = input("Ingrese el nombre del país que desea buscar: ").strip().title()
+
+    # recorrer la lista de paises:
+    for i, pais in enumerate(paises):
+        if pais_buscado.lower() in pais["nombre"].lower():
+            print(f"El país buscado '{pais_buscado}' fue encontrado en el índice {i}")
+            return pais, i
+
+    return None
+    
+ 
 	# TODO: Debe devolver pais e indice! Usar enumerate
-	# El pais buscado debe ser igual o parcialmente igual al nombre ingresado por el usuario.
-	pass
+	# El pais buscado debe ser igual o parcialmente igual al nombre ingresado por el usuario
+	      
+		
+	
+
+		   
+		
+
+			   
+
+
+
+
+	
 
 
 def filtrar_por_continente(paises):
+	
 	"""
 	Filtra los paises por continente.
 	Retorna:
@@ -328,24 +348,84 @@ def filtrar_paises(paises):
 				print("🚨 Opción inválida")
 
 
-def ordenar_por_nombre(paises):
-	pass
 
+def obtener_nombre(pais):#función auxiliar para buscar la key"nombre" en la lista de diccionarios
+	return pais["nombre"]
+
+def ordenar_por_nombre(paises):
+	print("---ORDENAR PAÍSES POR NOMBRE---")
+	paises_ordenados=sorted(paises,key=obtener_nombre)
+	for p in paises_ordenados:
+		print(p)
+	return paises_ordenados
+
+
+	
+
+
+def obtener_poblacion(pais):
+	return pais["poblacion"]
 
 def ordenar_por_poblacion(paises):
-	pass
+	print("---ORDENAR PAÍSES POR POBLACIÓN---")
+	poblacion=sorted(paises,key=obtener_poblacion)
+	for p in poblacion:
+		print(p)
+	return poblacion	
+
+def obtener_superficie(pais):#función auxiliar para obtener la key"superficie" 
+	return pais["area"]
+
+def ordenar_por_superficie_ascendente(paises):
+	print("---ORDENAR PAÍSES POR SUPERFICIE DE FORMA ASCENDENTE---")
+	superficie=sorted(paises,key=obtener_superficie)
+	for s in superficie:
+		print(s)
+	return superficie
+
+def ordenar_por_superficie_descendente(paises):
+	print("---ORDENAR PAÍSES POR SUPERFICIE DE FORMA DESCENDENTE---")
+	superficie=sorted(paises,key=obtener_superficie,reverse=True)
+	for s in superficie:
+		print(s)
+	return superficie	
 
 
-def ordenar_por_superficie(paises):
-	pass
 
 
 def ordenar_paises(paises):
-	pass
+	print("---ORDENAR PAÍSES---\n")
+	print("1.ORDENAR PAISES POR NOMBRE")
+	
+	print("2.ORDENAR PAISES POR POBLACIÓN")
+	print("3.ORDENAR PAISES POR SUPERFICIE DE FORMA ASCENDENTE")
+	print("4.ORDENAR PAISES POR SUPERFICIE DE FORMA DESCENDENTE")
+	opcion=input("Eliga una opción :").strip()
+	if opcion=="":
+		print("La opción no puede estar vacía")
+		return
+	if opcion=="1":
+		
+		ordenar_por_nombre(paises)
+	elif opcion=="2":
+		
+		ordenar_por_poblacion(paises)
+	elif opcion=="3":
+		
+		ordenar_por_superficie_ascendente(paises)
+	elif opcion=="4":
+		
+		ordenar_por_superficie_descendente(paises)	
+	else:
+		print("Opción inválida. Elija una de las opcines disponibles")
+		return			
 
 
 def mostrar_estadisticas(paises):
+
 	pass
+
+
 
 
 def menu():
@@ -381,6 +461,7 @@ def inicio():
 				filtrar_paises(paises)
 			case 5:
 				ordenar_paises(paises)
+				
 			case 6:
 				mostrar_estadisticas(paises)
 			case 7:
