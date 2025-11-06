@@ -368,15 +368,30 @@ def filtrar_paises(paises):
 				print("🚨 Opción inválida")
 
 
-def obtener_nombre(pais):#función auxiliar para buscar la key"nombre" en la lista de diccionarios
+def obtener_nombre(pais):
+	"""
+	Obtiene el nombre de un pais.
+	Retorna:
+		- str: el nombre del pais
+	"""
 	return pais["nombre"]
 
 
 def obtener_poblacion(pais):
+	"""
+	Obtiene la población de un pais.
+	Retorna:
+		- int: la población del pais
+	"""
 	return pais["poblacion"]
 
 
-def obtener_superficie(pais):#función auxiliar para obtener la key"superficie" 
+def obtener_superficie(pais):
+	"""
+	Obtiene la superficie de un pais.
+	Retorna:
+		- float: la superficie del pais
+	"""
 	return pais["area"]
 
 
@@ -561,7 +576,6 @@ def inicio():
 				filtrar_paises(paises)
 			case 5:
 				ordenar_paises(paises)
-				
 			case 6:
 				mostrar_estadisticas(paises)
 			case 7:
