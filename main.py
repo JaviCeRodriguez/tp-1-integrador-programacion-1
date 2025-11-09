@@ -400,8 +400,7 @@ def ordenar_por_nombre(paises):
 	Ordena los paises por nombre.
 	"""
 	paises_ordenados = sorted(paises, key=obtener_nombre)
-	for pais in paises_ordenados:
-		mostrar_pais(pais)
+	mostrar_paises(paises_ordenados)
 	return paises_ordenados
 
 
@@ -410,8 +409,7 @@ def ordenar_por_poblacion(paises):
 	Ordena los paises por población.
 	"""
 	poblacion=sorted(paises,key=obtener_poblacion)
-	for pais in poblacion:
-		mostrar_pais(pais)
+	mostrar_paises(poblacion)
 	return poblacion	
 
 
@@ -420,8 +418,7 @@ def ordenar_por_superficie(paises, descendente=True):
 	Ordena los paises por superficie de forma ascendente o descendente.
 	"""
 	superficie=sorted(paises,key=obtener_superficie,reverse=descendente)
-	for pais in superficie:
-		mostrar_pais(pais)
+	mostrar_paises(superficie)
 	return superficie
 
 
